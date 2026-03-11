@@ -1,6 +1,7 @@
 import { erc20ActionProvider } from "./erc20ActionProvider";
 import { TransferSchema, GetTokenAddressSchema, ApproveSchema, AllowanceSchema } from "./schemas";
 import { EvmWalletProvider } from "../../wallet-providers";
+import { ZERO_ADDRESS } from "../../utils";
 
 const MOCK_AMOUNT = 15;
 const MOCK_DECIMALS = 6;
@@ -28,6 +29,18 @@ describe("Transfer Schema", () => {
     const result = TransferSchema.safeParse(emptyInput);
 
     expect(result.success).toBe(false);
+  });
+
+  it("should reject the zero address as destination", () => {
+    const result = TransferSchema.safeParse({
+      amount: MOCK_AMOUNT.toString(),
+      tokenAddress: MOCK_CONTRACT_ADDRESS,
+      destinationAddress: ZERO_ADDRESS,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("zero address");
+    }
   });
 });
 
@@ -228,6 +241,18 @@ describe("Approve Schema", () => {
     const result = ApproveSchema.safeParse(invalidInput);
 
     expect(result.success).toBe(false);
+  });
+
+  it("should reject the zero address as spender", () => {
+    const result = ApproveSchema.safeParse({
+      amount: MOCK_AMOUNT.toString(),
+      tokenAddress: MOCK_CONTRACT_ADDRESS,
+      spenderAddress: ZERO_ADDRESS,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("zero address");
+    }
   });
 });
 

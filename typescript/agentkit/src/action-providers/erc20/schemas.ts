@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZERO_ADDRESS } from "../../utils";
 
 /**
  * Input schema for transfer action.
@@ -15,6 +16,10 @@ export const TransferSchema = z
     destinationAddress: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
       .describe("The destination to transfer the funds"),
   })
   .strip()
@@ -51,6 +56,10 @@ export const ApproveSchema = z
     spenderAddress: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
       .describe("The address to approve for spending tokens"),
   })
   .strip()

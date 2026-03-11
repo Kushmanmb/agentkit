@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZERO_ADDRESS } from "../../utils";
 
 /**
  * Input schema for creating a Superfluid stream
@@ -8,10 +9,18 @@ export const SuperfluidCreateStreamSchema = z
     superTokenAddress: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
       .describe("The ERC20 Super token to start or update streaming"),
     recipientAddress: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
       .describe("The EVM address to stream the token to."),
     flowRate: z
       .string()
@@ -28,10 +37,18 @@ export const SuperfluidDeleteStreamSchema = z
     superTokenAddress: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
       .describe("The ERC20 Super Token to start streaming"),
     recipientAddress: z
       .string()
       .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
       .describe("The EVM address to stream the token to."),
   })
   .strip()
