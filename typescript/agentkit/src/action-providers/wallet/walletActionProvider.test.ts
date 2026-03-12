@@ -2,6 +2,7 @@ import { WalletProvider, EvmWalletProvider } from "../../wallet-providers";
 import { walletActionProvider } from "./walletActionProvider";
 import { GetBalanceSchema, NativeTransferSchema, ReturnNativeBalanceSchema } from "./schemas";
 import { formatUnits, parseUnits } from "viem";
+import { ZERO_ADDRESS } from "../../utils";
 
 describe("Wallet Action Provider", () => {
   const MOCK_ADDRESS = "0xe6b2af36b3bb8d47206a129ff11d5a2de2a63c83";
@@ -157,7 +158,7 @@ describe("Wallet Action Provider", () => {
 
   describe("Native Transfer", () => {
     const MOCK_AMOUNT = "1.5"; // 1.5 ETH/SOL
-    const MOCK_DESTINATION = "0x321";
+    const MOCK_DESTINATION = "0x1234567890123456789012345678901234567890";
 
     it("should successfully parse valid input", () => {
       const validInput = {
@@ -178,6 +179,14 @@ describe("Wallet Action Provider", () => {
       const result = NativeTransferSchema.safeParse(emptyInput);
 
       expect(result.success).toBe(false);
+    });
+
+    it("should reject the zero address", () => {
+      const result = NativeTransferSchema.safeParse({ to: ZERO_ADDRESS, value: MOCK_AMOUNT });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain("zero address");
+      }
     });
 
     it("should successfully transfer ETH", async () => {
@@ -300,6 +309,16 @@ describe("Wallet Action Provider", () => {
     it("should fail parsing empty input", () => {
       const result = ReturnNativeBalanceSchema.safeParse({});
       expect(result.success).toBe(false);
+    });
+
+    it("should reject the zero address", () => {
+      const result = ReturnNativeBalanceSchema.safeParse({
+        to: "0x0000000000000000000000000000000000000000",
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain("zero address");
+      }
     });
 
     it("should return ETH balance minus gas fees via EvmWalletProvider", async () => {

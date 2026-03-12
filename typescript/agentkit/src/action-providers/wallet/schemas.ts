@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ZERO_ADDRESS } from "../../utils";
 
 /**
  * Schema for the get_wallet_details action.
@@ -17,7 +18,14 @@ export const GetBalanceSchema = z.object({});
  */
 export const NativeTransferSchema = z
   .object({
-    to: z.string().describe("The destination address to receive the funds"),
+    to: z
+      .string()
+      .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
+      .describe("The destination address to receive the funds"),
     value: z.string().describe("The amount to transfer in whole units e.g. 1 ETH or 0.00001 ETH"),
   })
   .strip()
@@ -28,7 +36,14 @@ export const NativeTransferSchema = z
  */
 export const ReturnNativeBalanceSchema = z
   .object({
-    to: z.string().describe("The destination address to receive all native token funds"),
+    to: z
+      .string()
+      .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
+      .refine(
+        val => val.toLowerCase() !== ZERO_ADDRESS,
+        "Cannot use the zero address (0x0000000000000000000000000000000000000000). Sending to the zero address permanently burns funds.",
+      )
+      .describe("The destination address to receive all native token funds"),
   })
   .strip()
   .describe("Instructions for returning all native token balance to a destination address");

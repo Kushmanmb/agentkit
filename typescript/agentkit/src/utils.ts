@@ -1,6 +1,13 @@
 import { encodeFunctionData } from "viem";
 import { EvmWalletProvider } from "./wallet-providers";
 import { erc20Abi } from "viem";
+
+/**
+ * The Ethereum zero address.
+ * Sending funds to this address permanently burns them.
+ * Security audit fix: @kushmanmb
+ */
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 /**
  * Approves a spender to spend tokens on behalf of the owner
  *

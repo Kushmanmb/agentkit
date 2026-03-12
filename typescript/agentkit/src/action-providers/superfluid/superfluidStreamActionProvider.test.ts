@@ -1,7 +1,9 @@
 import { encodeFunctionData } from "viem";
 import { superfluidStreamActionProvider } from "./superfluidStreamActionProvider";
 import { CFAv1ForwarderAddress, CFAv1ForwarderABI } from "./constants";
+import { SuperfluidCreateStreamSchema, SuperfluidDeleteStreamSchema } from "./schemas";
 import { EvmWalletProvider } from "../../wallet-providers";
+import { ZERO_ADDRESS } from "../../utils";
 
 describe("SuperfluidStreamActionProvider", () => {
   const MOCK_ADDRESS = "0xe6b2af36b3bb8d47206a129ff11d5a2de2a63c83";
@@ -69,6 +71,54 @@ describe("SuperfluidStreamActionProvider", () => {
 
       const response = await actionProvider.createStream(mockWallet, args);
       expect(response).toBe(`Error creating Superfluid stream: ${error}`);
+    });
+
+    it("should reject the zero address as recipient", () => {
+      const result = SuperfluidCreateStreamSchema.safeParse({
+        superTokenAddress: MOCK_ERC20_CONTRACT,
+        recipientAddress: ZERO_ADDRESS,
+        flowRate: MOCK_FLOW_RATE,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain("zero address");
+      }
+    });
+
+    it("should reject the zero address as superTokenAddress", () => {
+      const result = SuperfluidCreateStreamSchema.safeParse({
+        superTokenAddress: ZERO_ADDRESS,
+        recipientAddress: MOCK_RECIPIENT_ADDRESS,
+        flowRate: MOCK_FLOW_RATE,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain("zero address");
+      }
+    });
+  });
+
+  describe("delete stream schema", () => {
+    it("should reject the zero address as recipient", () => {
+      const result = SuperfluidDeleteStreamSchema.safeParse({
+        superTokenAddress: MOCK_ERC20_CONTRACT,
+        recipientAddress: ZERO_ADDRESS,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain("zero address");
+      }
+    });
+
+    it("should reject the zero address as superTokenAddress", () => {
+      const result = SuperfluidDeleteStreamSchema.safeParse({
+        superTokenAddress: ZERO_ADDRESS,
+        recipientAddress: MOCK_RECIPIENT_ADDRESS,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toContain("zero address");
+      }
     });
   });
 
