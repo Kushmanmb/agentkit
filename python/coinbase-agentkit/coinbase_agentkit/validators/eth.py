@@ -28,7 +28,6 @@ def validate_not_zero_address(value: str) -> str:
     """Validate that an Ethereum address is not the zero address.
 
     Prevents accidental fund loss by sending to the burn address.
-    Security audit fix: @kushmanmb
 
     Args:
         value: The address to validate
